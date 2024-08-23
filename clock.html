@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Times, Live Clock, and Weather</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        #clock {
+            font-size: 72px; /* Extra large font size */
+            font-weight: bold; /* Bold font */
+            color: red; /* Red color */
+            margin-top: 20px;
+        }
+        #date {
+            font-size: 36px; /* Large font size */
+            font-weight: bold; /* Bold font */
+            color: green; /* Green color */
+            margin-top: 10px;
+        }
+        #weather-forecast {
+            width: 100%;
+            height: 800px; /* Adjust height to fit content */
+            margin-top: 20px;
+            border: none; /* Remove iframe border */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Prayer Times, Live Clock, and Weather</h1>
+
+    <iframe src="https://www.fiveprayers.org/display/index.php?id=najib.halimi@yahoo.com"></iframe>
+
+    <div id="clock"></div>
+    <div id="date"></div>
+
+    <!-- Embed the AccuWeather page using an iframe -->
+    <iframe id="weather-forecast" src="https://www.accuweather.com/en/us/santa-barbara/93101/hourly-weather-forecast/327137"></iframe>
+
+    <script>
+        function updateClockAndDate() {
+            const now = new Date();
+            
+            // Time
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            document.getElementById('clock').innerText = `Current Time: ${hours}:${minutes}:${seconds} ${ampm}`;
+
+            // Date and Day
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const day = days[now.getDay()];
+            const date = now.toLocaleDateString();
+            document.getElementById('date').innerText = `Today is: ${day}, ${date}`;
+        }
+        setInterval(updateClockAndDate, 1000);
+        updateClockAndDate();  // Initial call to set clock and date immediately
+    </script>
+    
+</body>
+</html>
+
