@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prayer Times, Live Clock, and Weather</title>
+    <title>Prayer Times</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,13 +55,13 @@
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
-            document.getElementById('clock').innerText = `Current Time: ${hours}:${minutes}:${seconds} ${ampm}`;
+            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds} ${ampm}`;
 
             // Date and Day
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             const day = days[now.getDay()];
             const date = now.toLocaleDateString();
-            document.getElementById('date').innerText = `Today is: ${day}, ${date}`;
+            document.getElementById('date').innerText = `${day}, ${date}`;
         }
         setInterval(updateClockAndDate, 1000);
         updateClockAndDate();  // Initial call to set clock and date immediately
