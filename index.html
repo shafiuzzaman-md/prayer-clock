@@ -55,7 +55,7 @@
             document.getElementById('clock').innerText = `${hours}:${minutes} ${ampm}`;
 
             // Date and Day
-            const days = ['Sund', 'Mon', 'Tue', 'Wedn', 'Thu', 'Fri', 'Sat'];
+            const days = ['Sund', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const day = days[now.getDay()];
             const date = now.toLocaleDateString();
             document.getElementById('date').innerText = `${day}, ${date}`;
