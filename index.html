@@ -7,67 +7,79 @@
   <title>Prayer Clock – March 2025</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 30px 20px;
-      width: 100%;
-      max-width: 500px;
-      box-sizing: border-box;
-      text-align: center;
-    }
-  
-    #currentTime {
-      font-size: 2em;
-      font-weight: bold;
-      color: #007bff;
-    }
-  
-    #currentDate {
-      font-size: 1em;
-      color: #777;
-      margin-bottom: 20px;
-    }
-  
-    #currentPrayer {
-      font-size: 2em;
-      font-weight: bold;
-      color: green;
-      margin-bottom: 10px;
-    }
-  
-    #timeLeft {
-      font-size: 2.5em;
-      font-weight: bold;
-      color: red;
-      margin-top: 20px;
-    }
-  
-    @media (max-width: 500px) {
-      #currentTime {
-        font-size: 1.6em;
-      }
-  
-      #currentPrayer {
-        font-size: 1.8em;
-      }
-  
-      #timeLeft {
-        font-size: 2em;
-      }
-    }
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 20px 15px;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.card > div {
+  margin: 4px 0;
+}
+
+#currentTime {
+  font-size: 2.6em;
+  font-weight: bold;
+  color: #007bff;
+}
+
+#currentDate {
+  font-size: 1.3em;
+  color: #777;
+}
+
+#currentPrayer {
+  font-size: 2.2em;
+  font-weight: bold;
+  color: green;
+}
+
+#timeLeft {
+  font-size: 2.8em;
+  font-weight: bold;
+  color: red;
+}
+
+#nextPrayerTime {
+  font-size: 1.5em;
+  color: #333;
+}
+
+@media (max-width: 500px) {
+  #currentTime {
+    font-size: 2em;
+  }
+
+  #currentPrayer {
+    font-size: 1.8em;
+  }
+
+  #timeLeft {
+    font-size: 2.2em;
+  }
+
+  #nextPrayerTime {
+    font-size: 1.2em;
+  }
+}
+
   </style>
   
   
@@ -170,7 +182,8 @@
       }
 
       const now = new Date();
-      document.getElementById("currentTime").innerText = now.toLocaleTimeString();
+      document.getElementById("currentTime").innerText = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+
       document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, {
         weekday: 'long',
         year: 'numeric',
