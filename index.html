@@ -205,10 +205,12 @@
 
       document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
 
-      if (next) {
+      if (next && next.name !== "Sunrise") {
         const nextName = next.name;
-        const nextTime = next.time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-        document.getElementById("nextPrayerTime").innerText = `Next: ${nextName} at ${nextTime}`;
+        const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-")
+          ? ` (Iqama: ${formatTo12Hour(next.iqama)})`
+          : "";
+        document.getElementById("nextPrayerTime").innerText = `Next: ${nextName}${iqamaNext}`;
       } else {
         document.getElementById("nextPrayerTime").innerText = "";
       }
