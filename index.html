@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,92 +6,69 @@
   <title>Prayer Clock – March 2025</title>
   <style>
     html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 20px 15px;
-  width: 100%;
-  max-width: 500px;
-  box-sizing: border-box;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.card > div {
-  margin: 4px 0;
-}
-
-#currentTime {
-  font-size: 2.6em;
-  font-weight: bold;
-  color: #007bff;
-}
-
-#currentDate {
-  font-size: 1.3em;
-  color: #777;
-}
-
-#currentPrayer {
-  font-size: 2.2em;
-  font-weight: bold;
-  color: green;
-}
-
-#timeLeft {
-  font-size: 2.8em;
-  font-weight: bold;
-  color: red;
-}
-
-#nextPrayerTime {
-  font-size: 1.5em;
-  color: #333;
-}
-
-@media (max-width: 500px) {
-  #currentTime {
-    font-size: 2em;
-  }
-
-  #currentPrayer {
-    font-size: 1.8em;
-  }
-
-  #timeLeft {
-    font-size: 2.2em;
-  }
-
-  #nextPrayerTime {
-    font-size: 1.2em;
-  }
-}
-
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px 15px;
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .card > div {
+      margin: 4px 0;
+    }
+    #currentTime {
+      font-size: 2.6em;
+      font-weight: bold;
+      color: #007bff;
+    }
+    #currentDate {
+      font-size: 1.3em;
+      color: #777;
+    }
+    #currentPrayer {
+      font-size: 2.2em;
+      font-weight: bold;
+      color: green;
+    }
+    #timeLeft {
+      font-size: 2.8em;
+      font-weight: bold;
+      color: red;
+    }
+    #nextPrayerTime {
+      font-size: 1.5em;
+      color: #333;
+    }
+    @media (max-width: 500px) {
+      #currentTime { font-size: 2em; }
+      #currentPrayer { font-size: 1.8em; }
+      #timeLeft { font-size: 2.2em; }
+      #nextPrayerTime { font-size: 1.2em; }
+    }
   </style>
-  
-  
 </head>
 <body>
   <div class="card">
     <div style="font-size: 2.5em;">🕌</div>
-    <div id="currentTime" style="font-size: 2em; font-weight: bold; color: #007bff;"></div>
-    <div id="currentDate" style="font-size: 1em; color: #777;"></div>
-    <div id="currentPrayer" style="font-size: 2em; font-weight: bold; color: green;">Loading...</div>
-    <div class="time" id="timeLeft" style="font-size: 2.2em; font-weight: bold; color: red;"></div>
-    <div class="time" id="nextPrayerTime" style="font-size: 1.5em; margin-top: 10px;"></div>
-
+    <div id="currentTime"></div>
+    <div id="currentDate"></div>
+    <div id="currentPrayer">Loading...</div>
+    <div class="time" id="timeLeft"></div>
+    <div class="time" id="nextPrayerTime"></div>
   </div>
 
   <script>
@@ -114,57 +90,72 @@
     }
 
     function getTodayPrayerTimes() {
-      const today = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       return prayerTimes.find(p => p.date === today);
     }
+
     function formatTo12Hour(time24) {
-  const [hour, minute] = time24.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hour);
-  date.setMinutes(minute);
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-}
-
-
-    function getCurrentPrayer(prayers, now) {
-      
-      const schedule = [
-  
-  { name: "Fajr", time: parseTime(prayers.date, prayers.fajr), iqama: prayers.iqama.fajr },
-  { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
-  { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
-  { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
-  { name: "Maghrib", time: parseTime(prayers.date, prayers.maghrib), iqama: prayers.iqama.maghrib },
-  { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
-];
-
-
-    for (let i = 0; i < schedule.length - 1; i++) {
-      const curr = schedule[i];
-      const next = schedule[i + 1];
-
-      if (curr.name === "Sunrise") continue; // we never count it as current
-
-      if (now >= curr.time && now < next.time) {
-        return {
-          current: curr,
-          next,
-          schedule,
-          timeLeft: Math.floor((next.time - now) / 1000)
-        };
-      }
+      const [hour, minute] = time24.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hour);
+      date.setMinutes(minute);
+      return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
+    function getCurrentPrayer(prayers, now) {
+      const schedule = [
+        { name: "Fajr", time: parseTime(prayers.date, prayers.fajr), iqama: prayers.iqama.fajr },
+        { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
+        { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
+        { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
+        { name: "Maghrib", time: parseTime(prayers.date, prayers.maghrib), iqama: prayers.iqama.maghrib },
+        { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
+      ];
 
-    // Before Fajr or after Isha
-    const first = schedule.find(p => p.name !== "Sunrise");
-    return {
-      current: null,
-      next: first,
-      schedule,
-      timeLeft: Math.floor((first.time - now) / 1000)
-    };
+      for (let i = 0; i < schedule.length - 1; i++) {
+        const curr = schedule[i];
+        const next = schedule[i + 1];
+        if (curr.name === "Sunrise") continue;
+        if (now >= curr.time && now < next.time) {
+          return {
+            current: curr,
+            next,
+            schedule,
+            timeLeft: Math.floor((next.time - now) / 1000)
+          };
+        }
+      }
 
+      // After Isha or before Fajr
+      const isha = schedule.find(p => p.name === "Isha");
+      if (now >= isha.time) {
+        const tomorrow = new Date(prayers.date);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const tomorrowPrayers = prayerTimes.find(p => p.date === tomorrowStr);
+        if (tomorrowPrayers) {
+          const fajr = {
+            name: "Fajr",
+            time: parseTime(tomorrowPrayers.date, tomorrowPrayers.fajr),
+            iqama: tomorrowPrayers.iqama.fajr
+          };
+          return {
+            current: isha,
+            next: fajr,
+            schedule,
+            timeLeft: Math.floor((fajr.time - now) / 1000)
+          };
+        }
+      }
+
+      const fajr = schedule.find(p => p.name === "Fajr");
+      return {
+        current: null,
+        next: fajr,
+        schedule,
+        timeLeft: Math.floor((fajr.time - now) / 1000)
+      };
     }
 
     function formatTimeLeft(seconds) {
@@ -175,33 +166,21 @@
     }
 
     function update() {
+      const now = new Date();
       const todayPrayers = getTodayPrayerTimes();
       if (!todayPrayers) {
         document.getElementById("currentPrayer").innerText = "No data for today.";
         return;
       }
 
-      const now = new Date();
       document.getElementById("currentTime").innerText = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+      document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-      document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-
-
-      const { current, next, timeLeft, schedule } = getCurrentPrayer(todayPrayers, now);
-
-      const nextPrayerDisplay = (next.name === "Sunrise") ? schedule[schedule.indexOf(next) + 1] : next;
+      const { current, next, timeLeft } = getCurrentPrayer(todayPrayers, now);
 
       document.getElementById("currentPrayer").innerText = current
-  ? `${current.name}${(current.iqama && current.iqama !== "N/A" && current.iqama !== "-")
-    ? ` (Iqama: ${formatTo12Hour(current.iqama)})`
-    : ""}`
-  : "";
-
+        ? `${current.name}${(current.iqama && current.iqama !== "N/A" && current.iqama !== "-") ? ` (Iqama: ${formatTo12Hour(current.iqama)})` : ""}`
+        : "";
 
       document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
 
@@ -214,7 +193,6 @@
       } else {
         document.getElementById("nextPrayerTime").innerText = "";
       }
-
     }
 
     update();
