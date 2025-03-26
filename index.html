@@ -119,8 +119,15 @@
       for (let i = 0; i < schedule.length - 1; i++) {
         const curr = schedule[i];
         const next = schedule[i + 1];
-        if (curr.name === "Sunrise") continue;
+
         if (now >= curr.time && now < next.time) {
+          // Post-sunrise hiding logic
+          if (curr.name === "Sunrise") {
+            const sunriseEnd = new Date(curr.time.getTime() + 20 * 60 * 1000);
+            if (now > sunriseEnd) {
+              curr.name = ""; // or null or "—"
+            }
+          }
           return {
             current: curr,
             next,
