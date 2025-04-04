@@ -487,7 +487,7 @@
       currentPrayerEl.style.display = "none";
       nextPrayerEl.style.display = "block";
       const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
-      nextPrayerEl.innerText = `Next: ${next.name}${iqamaNext}`;
+      nextPrayerEl.innerText = `${next.name}${iqamaNext}`;
     } else {
       currentPrayerEl.style.display = "none";
       nextPrayerEl.style.display = "none";
