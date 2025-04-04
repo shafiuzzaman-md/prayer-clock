@@ -30,7 +30,7 @@
     .card > div { margin: 4px 0; }
     #currentDate { font-size: 1.8em; color: #FFF; font-weight: bold; }
     #currentTime { font-size: 4.2em; font-weight: bold; color: #0FF; }
-    #currentPrayer { font-size: 2.5em; font-weight: bold; color: #0F0; }
+    #currentPrayer { font-size: 2.4em; font-weight: bold; color: #0F0; }
     #timeLeft { font-size: 3em; font-weight: bold; color: #F00; }
     #nextPrayerTime { font-size: 1.85em; font-weight: bold; color: #FA0; }
     @media (max-width: 500px) {
@@ -361,7 +361,8 @@
         { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
         { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
         { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
-        { name: "Maghrib", time: parseTime(prayers.date, prayers.maghrib), iqama: prayers.iqama.maghrib },
+        { name: "Maghrib",  time: parseTime(prayers.date, prayers.maghrib), iqama: (prayers.iqama.maghrib === "At Sunset") ? prayers.maghrib : prayers.iqama.maghrib},
+
         { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
       ];
 
@@ -401,21 +402,36 @@
         return;
       }
 
-      document.getElementById("currentTime").innerText = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
-      document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById("currentTime").innerText = now.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
 
-      const { current, next, timeLeft } = getCurrentPrayer(todayPrayers, now);
+      document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
 
-      // Determine if current prayer should still be shown
+      const { current, next, timeLeft, schedule } = getCurrentPrayer(todayPrayers, now);
+      const currentPrayerEl = document.getElementById("currentPrayer");
+      const nextPrayerEl = document.getElementById("nextPrayerTime");
+
+      // Check if current prayer should still be shown based on Iqama + 20min
       let showCurrentPrayer = false;
       if (current && current.iqama && current.iqama !== "N/A" && current.iqama !== "-") {
         const iqamaTime = parseTime(todayPrayers.date, current.iqama);
-        const iqamaEnd = new Date(iqamaTime.getTime() + 20 * 60 * 1000); // 20 minutes after iqama
+        const iqamaEnd = new Date(iqamaTime.getTime() + 20 * 60 * 1000);
         showCurrentPrayer = now < iqamaEnd;
       }
 
-      const currentPrayerEl = document.getElementById("currentPrayer");
-      const nextPrayerEl = document.getElementById("nextPrayerTime");
+      // Auto switch back to current prayer when timeLeft hits zero
+      if (timeLeft <= 0) {
+        showCurrentPrayer = true;
+      }
 
       if (showCurrentPrayer && current) {
         currentPrayerEl.style.display = "block";
@@ -433,6 +449,7 @@
 
       document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
     }
+
 
 
     setInterval(update, 1000);
