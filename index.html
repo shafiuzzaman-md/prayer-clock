@@ -406,20 +406,34 @@
 
       const { current, next, timeLeft } = getCurrentPrayer(todayPrayers, now);
 
-      document.getElementById("currentPrayer").innerText = current
-        ? `${current.name}${(current.iqama && current.iqama !== "N/A" && current.iqama !== "-") ? ` (Iqama: ${current.iqama})` : ""}`
-        : "";
+      // Determine if current prayer should still be shown
+      let showCurrentPrayer = false;
+      if (current && current.iqama && current.iqama !== "N/A" && current.iqama !== "-") {
+        const iqamaTime = parseTime(todayPrayers.date, current.iqama);
+        const iqamaEnd = new Date(iqamaTime.getTime() + 20 * 60 * 1000); // 20 minutes after iqama
+        showCurrentPrayer = now < iqamaEnd;
+      }
+
+      const currentPrayerEl = document.getElementById("currentPrayer");
+      const nextPrayerEl = document.getElementById("nextPrayerTime");
+
+      if (showCurrentPrayer && current) {
+        currentPrayerEl.style.display = "block";
+        currentPrayerEl.innerText = `${current.name}${(current.iqama && current.iqama !== "N/A" && current.iqama !== "-") ? ` (Iqama: ${current.iqama})` : ""}`;
+        nextPrayerEl.style.display = "none";
+      } else if (next && next.name !== "Sunrise") {
+        currentPrayerEl.style.display = "none";
+        nextPrayerEl.style.display = "block";
+        const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
+        nextPrayerEl.innerText = `Next: ${next.name}${iqamaNext}`;
+      } else {
+        currentPrayerEl.style.display = "none";
+        nextPrayerEl.style.display = "none";
+      }
 
       document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
-
-      if (next && next.name !== "Sunrise") {
-        const nextName = next.name;
-        const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
-        document.getElementById("nextPrayerTime").innerText = `Next: ${nextName}${iqamaNext}`;
-      } else {
-        document.getElementById("nextPrayerTime").innerText = "";
-      }
     }
+
 
     setInterval(update, 1000);
     update();
