@@ -30,9 +30,9 @@
     .card > div { margin: 4px 0; }
     #currentDate { font-size: 1.8em; color: #FFF; font-weight: bold; }
     #currentTime { font-size: 4.2em; font-weight: bold; color: #0FF; }
-    #currentPrayer { font-size: 2.4em; font-weight: bold; color: #0F0; }
+    #currentPrayer { font-size: 2.4em; font-weight: bold; color: #FA0; }
     #timeLeft { font-size: 3em; font-weight: bold; color: #F00; }
-    #nextPrayerTime { font-size: 1.85em; font-weight: bold; color: #FA0; }
+    #nextPrayerTime { font-size: 2.4em; font-weight: bold; color:  #0F0; }
     @media (max-width: 500px) {
       #currentTime { font-size: 2em; }
       #currentPrayer { font-size: 1.8em; }
@@ -356,36 +356,58 @@
     }
 
     function getCurrentPrayer(prayers, now) {
-      const schedule = [
-        { name: "Fajr", time: parseTime(prayers.date, prayers.fajr), iqama: prayers.iqama.fajr },
-        { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
-        { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
-        { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
-        { name: "Maghrib",  time: parseTime(prayers.date, prayers.maghrib), iqama: (prayers.iqama.maghrib === "At Sunset") ? prayers.maghrib : prayers.iqama.maghrib},
+  const schedule = [
+    { name: "Fajr", time: parseTime(prayers.date, prayers.fajr), iqama: prayers.iqama.fajr },
+    { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
+    { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
+    { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
+    { name: "Maghrib",  time: parseTime(prayers.date, prayers.maghrib), iqama: (prayers.iqama.maghrib === "At Sunset") ? prayers.maghrib : prayers.iqama.maghrib },
+    { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
+  ];
 
-        { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
-      ];
-
-      for (let i = 0; i < schedule.length - 1; i++) {
-        const curr = schedule[i];
-        const next = schedule[i + 1];
-        if (now >= curr.time && now < next.time) {
-          return {
-            current: curr,
-            next,
-            schedule,
-            timeLeft: Math.floor((next.time - now) / 1000)
-          };
-        }
-      }
-
+  for (let i = 0; i < schedule.length - 1; i++) {
+    const curr = schedule[i];
+    const next = schedule[i + 1];
+    if (now >= curr.time && now < next.time) {
       return {
-        current: null,
-        next: schedule[0],
+        current: curr,
+        next,
         schedule,
-        timeLeft: Math.floor((schedule[0].time - now) / 1000)
+        timeLeft: Math.floor((next.time - now) / 1000)
       };
     }
+  }
+
+  // After Isha — set next to tomorrow's Fajr
+  const isha = schedule[schedule.length - 1];
+  if (now >= isha.time) {
+    const tomorrow = new Date(prayers.date);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+    const tomorrowPrayer = prayerTimes.find(p => p.date === tomorrowStr);
+    const tomorrowDay = tomorrow.getDate();
+    const iqama = tomorrowDay <= 15 ? iqama_1_15 : iqama_16_30;
+
+    if (tomorrowPrayer) {
+      const fajrTime = parseTime(tomorrowPrayer.date, tomorrowPrayer.fajr);
+      return {
+        current: isha,
+        next: { name: "Fajr", time: fajrTime, iqama: iqama.fajr },
+        schedule,
+        timeLeft: Math.floor((fajrTime - now) / 1000)
+      };
+    }
+  }
+
+  // Before Fajr
+  const fajr = schedule[0];
+  return {
+    current: null,
+    next: fajr,
+    schedule,
+    timeLeft: Math.floor((fajr.time - now) / 1000)
+  };
+}
 
     function formatTimeLeft(seconds) {
       const h = Math.floor(seconds / 3600);
@@ -441,7 +463,7 @@
         currentPrayerEl.style.display = "none";
         nextPrayerEl.style.display = "block";
         const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
-        nextPrayerEl.innerText = `Next: ${next.name}${iqamaNext}`;
+        nextPrayerEl.innerText = `${next.name}${iqamaNext}`;
       } else {
         currentPrayerEl.style.display = "none";
         nextPrayerEl.style.display = "none";
