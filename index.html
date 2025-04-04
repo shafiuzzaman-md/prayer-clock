@@ -369,6 +369,28 @@
     const curr = schedule[i];
     const next = schedule[i + 1];
     if (now >= curr.time && now < next.time) {
+
+      // Special logic to show Sunrise only for 20 minutes
+      if (curr.name === "Sunrise") {
+        const sunriseEnd = new Date(curr.time.getTime() + 20 * 60 * 1000);
+        if (now <= sunriseEnd) {
+          return {
+            current: curr,
+            next,
+            schedule,
+            timeLeft: Math.floor((sunriseEnd - now) / 1000)
+          };
+        } else {
+          // After 20 minutes of sunrise, skip to next
+          return {
+            current: null,
+            next,
+            schedule,
+            timeLeft: Math.floor((next.time - now) / 1000)
+          };
+        }
+      }
+
       return {
         current: curr,
         next,
@@ -416,61 +438,66 @@
       return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
-    function update() {
-      const now = new Date();
-      const todayPrayers = getTodayPrayerTimes();
-      if (!todayPrayers) {
-        document.getElementById("currentPrayer").innerText = "No data for today.";
-        return;
-      }
-
-      document.getElementById("currentTime").innerText = now.toLocaleTimeString([], {
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      });
-
-      document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-
-      const { current, next, timeLeft, schedule } = getCurrentPrayer(todayPrayers, now);
-      const currentPrayerEl = document.getElementById("currentPrayer");
-      const nextPrayerEl = document.getElementById("nextPrayerTime");
-
-      // Check if current prayer should still be shown based on Iqama + 20min
-      let showCurrentPrayer = false;
-      if (current && current.iqama && current.iqama !== "N/A" && current.iqama !== "-") {
-        const iqamaTime = parseTime(todayPrayers.date, current.iqama);
-        const iqamaEnd = new Date(iqamaTime.getTime() + 20 * 60 * 1000);
-        showCurrentPrayer = now < iqamaEnd;
-      }
-
-      // Auto switch back to current prayer when timeLeft hits zero
-      if (timeLeft <= 0) {
-        showCurrentPrayer = true;
-      }
-
-      if (showCurrentPrayer && current) {
-        currentPrayerEl.style.display = "block";
-        currentPrayerEl.innerText = `${current.name}${(current.iqama && current.iqama !== "N/A" && current.iqama !== "-") ? ` (Iqama: ${current.iqama})` : ""}`;
-        nextPrayerEl.style.display = "none";
-      } else if (next && next.name !== "Sunrise") {
-        currentPrayerEl.style.display = "none";
-        nextPrayerEl.style.display = "block";
-        const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
-        nextPrayerEl.innerText = `${next.name}${iqamaNext}`;
-      } else {
-        currentPrayerEl.style.display = "none";
-        nextPrayerEl.style.display = "none";
-      }
-
-      document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
+  function update() {
+    const now = new Date();
+    const todayPrayers = getTodayPrayerTimes();
+    if (!todayPrayers) {
+      document.getElementById("currentPrayer").innerText = "No data for today.";
+      return;
     }
+
+    document.getElementById("currentTime").innerText = now.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+
+    document.getElementById("currentDate").innerText = now.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const { current, next, timeLeft } = getCurrentPrayer(todayPrayers, now);
+    const currentPrayerEl = document.getElementById("currentPrayer");
+    const nextPrayerEl = document.getElementById("nextPrayerTime");
+
+    let showCurrentPrayer = false;
+
+    if (current && current.name === "Sunrise") {
+      showCurrentPrayer = true; // Always show sunrise during its 20 minute window
+    } else if (current && current.iqama && current.iqama !== "N/A" && current.iqama !== "-") {
+      const iqamaTime = parseTime(todayPrayers.date, current.iqama);
+      const iqamaEnd = new Date(iqamaTime.getTime() + 20 * 60 * 1000);
+      showCurrentPrayer = now < iqamaEnd;
+    }
+
+    if (timeLeft <= 0) {
+      showCurrentPrayer = true;
+    }
+
+    if (showCurrentPrayer && current) {
+      currentPrayerEl.style.display = "block";
+      const label = current.iqama && current.iqama !== "N/A" && current.iqama !== "-" ? ` (Iqama: ${current.iqama})` : "";
+      currentPrayerEl.innerText = `${current.name}${label}`;
+      nextPrayerEl.style.display = "none";
+    } else if (next && next.name !== "Sunrise") {
+      currentPrayerEl.style.display = "none";
+      nextPrayerEl.style.display = "block";
+      const iqamaNext = (next.iqama && next.iqama !== "N/A" && next.iqama !== "-") ? ` (Iqama: ${next.iqama})` : "";
+      nextPrayerEl.innerText = `Next: ${next.name}${iqamaNext}`;
+    } else {
+      currentPrayerEl.style.display = "none";
+      nextPrayerEl.style.display = "none";
+    }
+
+    document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
+  }
+
+
+     
 
 
 
