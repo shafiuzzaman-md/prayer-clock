@@ -27,10 +27,13 @@
       text-align: center;
       line-height: 1.2;
     }
-    .card > div { margin: 4px 0; }
+    .card > div {
+    margin: 2px 0; /* reduce top-bottom margin between all divs */
+    line-height: 1.2; /* tighter line height */
+  }
    
-    #currentTime { font-size: 4.2em; font-weight: bold; color: #0FF; }
-    #currentPrayer { font-size: 2.4em; font-weight: bold; color: #FA0; }
+    #currentTime { font-size: 4.2em; font-weight: bold; color: #0FF; margin-bottom: 0; margin-top: 0;}
+    #currentPrayer { font-size: 2.4em; font-weight: bold; color: #FA0; margin-bottom: 0;}
     #timeLeft { font-size: 3em; font-weight: bold; color: #F00; }
     #nextPrayerTime { font-size: 2.4em; font-weight: bold; color:  #0F0; }
     @media (max-width: 500px) {
@@ -45,14 +48,14 @@
   font-size: 1.8em;
   color: #FFF;
   font-weight: bold;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 #temperature {
   font-size: 2em;
   color: #0AF;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
  
