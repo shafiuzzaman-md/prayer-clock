@@ -58,7 +58,25 @@
   margin-bottom: 0;
 }
 
- 
+#timeLeft {
+  font-size: 2.6em;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+#timeLeft.iqama {
+  color: #0F0; /* green */
+}
+
+#timeLeft.countdown {
+  color: #F00; /* red */
+}
+
+
+#currentPrayer,
+#nextPrayerTime {
+  display: none !important;
+}
 
 
   </style>
@@ -462,6 +480,20 @@
       return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
+    function formatMinutes(seconds) {
+      if (seconds < 60) return "1 minute";
+
+      const mins = Math.ceil(seconds / 60);
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+
+      if (h > 0 && m > 0) return `${h}h ${m}m`;
+      if (h > 0) return `${h}h`;
+      return `${m}m`;
+    }
+
+
+
   function update() {
     const now = new Date();
     const todayPrayers = getTodayPrayerTimes();
@@ -517,7 +549,54 @@
       nextPrayerEl.style.display = "none";
     }
 
-    document.getElementById("timeLeft").innerText = `Time left: ${formatTimeLeft(timeLeft)}`;
+    const timeLeftEl = document.getElementById("timeLeft");
+    let message = "";
+    timeLeftEl.className = ""; // clear previous styles
+    if (current && current.name === "Fajr" && next.name === "Sunrise") {
+      const sunriseTime = parseTime(todayPrayers.date, todayPrayers.sunrise);
+      const secsLeft = Math.floor((sunriseTime - now) / 1000);
+      if (secsLeft > 0) {
+        message = `Sunrise in ${formatMinutes(secsLeft)}`;
+        timeLeftEl.classList.add("countdown");
+      } else if (secsLeft > -1200) {
+        message = `Sunrise time`;
+        timeLeftEl.classList.add("countdown");
+      }
+    } else if (current && current.name === "Sunrise") {
+      // Already covered by sunrise logic
+      const sunriseEnd = new Date(parseTime(todayPrayers.date, todayPrayers.sunrise).getTime() + 20 * 60 * 1000);
+      const secsLeft = Math.floor((sunriseEnd - now) / 1000);
+      if (secsLeft > 0) {
+        message = `Sunrise time`;
+        timeLeftEl.classList.add("countdown");
+      } else {
+        // Already passed 20 mins after sunrise
+        const secsToNext = Math.floor((next.time - now) / 1000);
+        message = `${next.name} in ${formatMinutes(secsToNext)}`;
+        timeLeftEl.classList.add("countdown");
+      }
+    } else if (current && current.iqama && current.iqama !== "N/A" && current.iqama !== "-") {
+      const iqamaTime = parseTime(todayPrayers.date, current.iqama);
+      const secsToIqama = Math.floor((iqamaTime - now) / 1000);
+      if (secsToIqama > 0) {
+        message = `${current.name} iqama in ${formatMinutes(secsToIqama)}`;
+      } else {
+        const secsToNext = Math.floor((next.time - now) / 1000);
+        message = `${next.name} in ${formatMinutes(secsToNext)}`;
+        timeLeftEl.classList.add("iqama");
+      }
+    } else if (next) {
+      // Fallback — before Fajr or after Isha
+      const secsToNext = Math.floor((next.time - now) / 1000);
+      message = `${next.name} in ${formatMinutes(secsToNext)}`;
+      timeLeftEl.classList.add("countdown");
+    } else {
+      message = ""; // nothing to show
+    }
+
+    timeLeftEl.innerText = message;
+
+
   }
 
 
