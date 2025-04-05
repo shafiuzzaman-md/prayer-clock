@@ -41,28 +41,20 @@
     }
 
 
-    .date-temp {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.2em;
-  font-weight: bold;
+    #currentDate {
+  font-size: 1.8em;
   color: #FFF;
-  width: 100%;
-  padding: 5px 10px;
-  box-sizing: border-box;
-}
-
-#currentDate {
-  text-align: left;
-  flex: 5;
+  font-weight: bold;
+  margin-bottom: 2px;
 }
 
 #temperature {
-  text-align: right;
-  flex: 3;
+  font-size: 2em;
   color: #0AF;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
+
  
 
 
@@ -71,18 +63,14 @@
 <body>
 
   <div class="card">
-    <div style="font-size: 2.5em;">🕌</div>
-    <div class="date-temp">
-      <div id="currentDate">Loading date...</div>
-      <div id="temperature">🌡 Loading...</div>
-    </div>
-    
-    
+    <div id="currentDate">Loading date...</div>
+    <div id="temperature">🌡 Loading...</div>
     <div id="currentTime"></div>
     <div id="currentPrayer">Loading...</div>
     <div class="time" id="timeLeft"></div>
     <div class="time" id="nextPrayerTime"></div>
   </div>
+  
 
   <script>
     const prayerTimes = [
