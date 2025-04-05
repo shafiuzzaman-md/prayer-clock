@@ -28,7 +28,7 @@
       line-height: 1.2;
     }
     .card > div { margin: 4px 0; }
-    #currentDate { font-size: 1.8em; color: #FFF; font-weight: bold; }
+   
     #currentTime { font-size: 4.2em; font-weight: bold; color: #0FF; }
     #currentPrayer { font-size: 2.4em; font-weight: bold; color: #FA0; }
     #timeLeft { font-size: 3em; font-weight: bold; color: #F00; }
@@ -39,12 +39,45 @@
       #timeLeft { font-size: 2.2em; }
       #nextPrayerTime { font-size: 1.2em; }
     }
+
+
+    .date-temp {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #FFF;
+  width: 100%;
+  padding: 5px 10px;
+  box-sizing: border-box;
+}
+
+#currentDate {
+  text-align: left;
+  flex: 5;
+}
+
+#temperature {
+  text-align: right;
+  flex: 3;
+  color: #0AF;
+}
+ 
+
+
   </style>
 </head>
 <body>
+
   <div class="card">
     <div style="font-size: 2.5em;">🕌</div>
-    <div id="currentDate"></div>
+    <div class="date-temp">
+      <div id="currentDate">Loading date...</div>
+      <div id="temperature">🌡 Loading...</div>
+    </div>
+    
+    
     <div id="currentTime"></div>
     <div id="currentPrayer">Loading...</div>
     <div class="time" id="timeLeft"></div>
@@ -497,12 +530,29 @@
   }
 
 
-     
+  async function fetchTemperature(lat = 40.7128, lon = -74.0060) { // Default: New York City
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const tempC = data.current_weather.temperature;
+    const tempF = (tempC * 9/5) + 32;
+    document.getElementById("temperature").innerText = `🌡 ${tempC.toFixed(1)}°C / ${tempF.toFixed(1)}°F`;;
+  } catch (err) {
+    console.error("Temperature fetch failed", err);
+    document.getElementById("temperature").innerText = "🌡 N/A";
+  }
+}
+  
 
 
 
     setInterval(update, 1000);
     update();
+    fetchTemperature(34.418681, -119.871810); 
+    setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000); // refresh every 10 min
+
   </script>
 </body>
 </html>
