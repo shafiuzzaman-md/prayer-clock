@@ -83,6 +83,7 @@
 <body>
 
   <div class="card">
+    <div id="locationName" style="font-size: 1em; color: #ccc;"></div>
     <div id="currentDate">Loading date...</div>
     <div id="temperature">🌡 Loading...</div>
     <div id="currentTime"></div>
@@ -599,7 +600,7 @@
   }
 
 
-  async function fetchTemperature(lat = 34.41868, lon = -119.871809) {
+  async function fetchTemperature(lat, lon) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
 
   try {
@@ -614,13 +615,46 @@
   }
 }
   
+  async function fetchLocationName(lat, lon) {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': 'PrayerClockApp/1.0' } });
+      const data = await res.json();
+      const name = data.address.city || data.address.town || data.address.village || data.address.state || "Your area";
+      document.getElementById("locationName").innerText = `📍 ${name}`;
+    } catch (err) {
+      console.warn("Location name fetch failed", err);
+      document.getElementById("locationName").innerText = "";
+    }
+  }
 
 
 
     setInterval(update, 1000);
     update();
-    fetchTemperature(34.418681, -119.871810); 
-    setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000); // refresh every 10 min
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetchTemperature(latitude, longitude);
+          fetchLocationName(latitude, longitude);
+          setInterval(() => fetchTemperature(latitude, longitude), 10 * 60 * 1000);
+        },
+        (error) => {
+          console.warn("Geolocation failed, using default location.", error);
+          fetchTemperature(40.7128, -74.0060);
+          fetchLocationName(40.7128, -74.0060);
+          setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000);
+        }
+      );
+    } else {
+      console.warn("Geolocation not supported, using default location.");
+      fetchTemperature(40.7128, -74.0060);
+      fetchLocationName(40.7128, -74.0060);
+      setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000);
+    }
+
 
   </script>
 </body>
