@@ -378,14 +378,14 @@ const prayerTimes = [
     "isha": "9:29 PM"
   }
 ];
-iqama_1_15 = {
+iqama_1 = {
     "fajr": "5:15 AM",
     "dhuhr": "1:15 PM",
     "asr": "6:00 PM",
     "maghrib": "At Sunset",
     "isha": "9:15 PM"
 }
-iqama_16_31 = {
+iqama_2 = {
     "fajr": "5:00 AM",
     "dhuhr": "1:15 PM",
     "asr": "6:15 PM",
@@ -406,7 +406,7 @@ iqama_16_31 = {
       const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       const raw = prayerTimes.find(p => p.date === todayStr);
       const day = now.getDate();
-      const iqama = day <= 15 ? iqama_1_15 : iqama_16_30;
+      const iqama = day <= 15 ? iqama_1 : iqama_2;
       if (!raw) return null;
       return {
         date: raw.date,
@@ -473,7 +473,7 @@ iqama_16_31 = {
     const tomorrowStr = tomorrow.toISOString().split("T")[0];
     const tomorrowPrayer = prayerTimes.find(p => p.date === tomorrowStr);
     const tomorrowDay = tomorrow.getDate();
-    const iqama = tomorrowDay <= 15 ? iqama_1_15 : iqama_16_30;
+    const iqama = tomorrowDay <= 15 ? iqama_1 :iqama_2;
 
     if (tomorrowPrayer) {
       const fajrTime = parseTime(tomorrowPrayer.date, tomorrowPrayer.fajr);
