@@ -97,303 +97,141 @@
   
 
   <script>
-const prayerTimes = [
-  {
-  "date": "2025-07-01",
-  "fajr": "4:06 AM",
-  "sunrise": "5:49 AM",
-  "dhuhr": "1:03 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:21 PM",
-  "isha": "9:40 PM"
-},
-  {
-  "date": "2025-07-02",
-  "fajr": "4:06 AM",
-  "sunrise": "5:50 AM",
-  "dhuhr": "1:03 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:21 PM",
-  "isha": "9:40 PM"
-},
-  {
-  "date": "2025-07-03",
-  "fajr": "4:07 AM",
-  "sunrise": "5:50 AM",
-  "dhuhr": "1:03 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:21 PM",
-  "isha": "9:40 PM"
-},
-  {
-  "date": "2025-07-04",
-  "fajr": "4:07 AM",
-  "sunrise": "5:51 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:20 PM",
-  "isha": "9:40 PM"
-},
-  {
-  "date": "2025-07-05",
-  "fajr": "4:08 AM",
-  "sunrise": "5:51 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:20 PM",
-  "isha": "9:39 PM"
-},
-  {
-  "date": "2025-07-06",
-  "fajr": "4:09 AM",
-  "sunrise": "5:52 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:20 PM",
-  "isha": "9:39 PM"
-},
-  {
-  "date": "2025-07-07",
-  "fajr": "4:10 AM",
-  "sunrise": "5:52 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:20 PM",
-  "isha": "9:39 PM"
-},
-  {
-  "date": "2025-07-08",
-  "fajr": "4:10 AM",
-  "sunrise": "5:53 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:20 PM",
-  "isha": "9:38 PM"
-},
-  {
-  "date": "2025-07-09",
-  "fajr": "4:11 AM",
-  "sunrise": "5:53 AM",
-  "dhuhr": "1:04 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:19 PM",
-  "isha": "9:38 PM"
-},
-  {
-  "date": "2025-07-10",
-  "fajr": "4:12 AM",
-  "sunrise": "5:54 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:19 PM",
-  "isha": "9:37 PM"
-},
-  {
-  "date": "2025-07-11",
-  "fajr": "4:13 AM",
-  "sunrise": "5:54 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:05 PM",
-  "maghrib": "8:19 PM",
-  "isha": "9:37 PM"
-},
-  {
-  "date": "2025-07-12",
-  "fajr": "4:14 AM",
-  "sunrise": "5:55 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:19 PM",
-  "isha": "9:36 PM"
-},
-  {
-  "date": "2025-07-13",
-  "fajr": "4:15 AM",
-  "sunrise": "5:56 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:18 PM",
-  "isha": "9:36 PM"
-},
-  {
-  "date": "2025-07-14",
-  "fajr": "4:15 AM",
-  "sunrise": "5:56 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:18 PM",
-  "isha": "9:35 PM"
-},
-  {
-  "date": "2025-07-15",
-  "fajr": "4:16 AM",
-  "sunrise": "5:57 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:17 PM",
-  "isha": "9:35 PM"
-},
-  {
-  "date": "2025-07-16",
-  "fajr": "4:17 AM",
-  "sunrise": "5:57 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:17 PM",
-  "isha": "9:34 PM"
-},
-  {
-  "date": "2025-07-17",
-  "fajr": "4:18 AM",
-  "sunrise": "5:58 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:16 PM",
-  "isha": "9:33 PM"
-},
-  {
-  "date": "2025-07-18",
-  "fajr": "4:19 AM",
-  "sunrise": "5:59 AM",
-  "dhuhr": "1:05 PM",
-  "asr": "6:04 PM",
-  "maghrib": "8:16 PM",
-  "isha": "9:33 PM"
-},
-  {
-  "date": "2025-07-19",
-  "fajr": "4:20 AM",
-  "sunrise": "5:59 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:03 PM",
-  "maghrib": "8:15 PM",
-  "isha": "9:32 PM"
-},
-  {
-  "date": "2025-07-20",
-  "fajr": "4:21 AM",
-  "sunrise": "6:00 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:03 PM",
-  "maghrib": "8:15 PM",
-  "isha": "9:31 PM"
-},
-  {
-  "date": "2025-07-21",
-  "fajr": "4:22 AM",
-  "sunrise": "6:01 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:03 PM",
-  "maghrib": "8:14 PM",
-  "isha": "9:30 PM"
-},
-  {
-  "date": "2025-07-22",
-  "fajr": "4:23 AM",
-  "sunrise": "6:01 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:03 PM",
-  "maghrib": "8:14 PM",
-  "isha": "9:29 PM"
-},
-  {
-  "date": "2025-07-23",
-  "fajr": "4:24 AM",
-  "sunrise": "6:02 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:02 PM",
-  "maghrib": "8:13 PM",
-  "isha": "9:29 PM"
-},
-  {
-  "date": "2025-07-24",
-  "fajr": "4:25 AM",
-  "sunrise": "6:03 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:02 PM",
-  "maghrib": "8:12 PM",
-  "isha": "9:28 PM"
-},
-  {
-  "date": "2025-07-25",
-  "fajr": "4:26 AM",
-  "sunrise": "6:03 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:02 PM",
-  "maghrib": "8:12 PM",
-  "isha": "9:27 PM"
-},
-  {
-  "date": "2025-07-26",
-  "fajr": "4:27 AM",
-  "sunrise": "6:04 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:01 PM",
-  "maghrib": "8:11 PM",
-  "isha": "9:26 PM"
-},
-  {
-  "date": "2025-07-27",
-  "fajr": "4:28 AM",
-  "sunrise": "6:05 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:01 PM",
-  "maghrib": "8:10 PM",
-  "isha": "9:25 PM"
-},
-  {
-  "date": "2025-07-28",
-  "fajr": "4:29 AM",
-  "sunrise": "6:06 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:01 PM",
-  "maghrib": "8:10 PM",
-  "isha": "9:24 PM"
-},
-  {
-  "date": "2025-07-29",
-  "fajr": "4:30 AM",
-  "sunrise": "6:06 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:00 PM",
-  "maghrib": "8:09 PM",
-  "isha": "9:23 PM"
-},
-  {
-  "date": "2025-07-30",
-  "fajr": "4:32 AM",
-  "sunrise": "6:07 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "6:00 PM",
-  "maghrib": "8:08 PM",
-  "isha": "9:22 PM"
-},
-  {
-  "date": "2025-07-31",
-  "fajr": "4:33 AM",
-  "sunrise": "6:08 AM",
-  "dhuhr": "1:06 PM",
-  "asr": "5:59 PM",
-  "maghrib": "8:07 PM",
-  "isha": "9:21 PM"
-},
-];
+// Prayer times fetched from arrahman.azurewebsites.net
+let cachedPrayerData = null;
+let cachedSunrise = null;
+let lastFetchDate = null;
 
-const iqama_1 = {
-  "fajr": "5:00 AM",
-  "dhuhr": "1:15 PM",
-  "asr": "6:15 PM",
-  "maghrib": "At Sunset",
-  "isha": "9:45 PM"
-};
+function parsePrayerTimesHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
 
-const iqama_2 = {
-  "fajr": "5:00 AM",
-  "dhuhr": "1:15 PM",
-  "asr": "6:15 PM",
-  "maghrib": "At Sunset",
-  "isha": "9:45 PM"
-};
+  // Extract prayer times from table rows with data-prayer attribute
+  const prayerNames = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  const athan = {};
+  const iqama = {};
+
+  const rows = doc.querySelectorAll('tr[data-prayer]');
+  for (const row of rows) {
+    const cells = row.querySelectorAll('td');
+    if (cells.length < 3) continue;
+    const name = (row.getAttribute('data-prayer') || cells[0].textContent.trim()).toLowerCase();
+    for (const pn of prayerNames) {
+      if (name.includes(pn)) {
+        athan[pn] = cells[1].textContent.trim();
+        iqama[pn] = cells[2].textContent.trim();
+        break;
+      }
+    }
+  }
+
+  // Fallback: try all table rows if data-prayer not found
+  if (!athan.fajr) {
+    const allRows = doc.querySelectorAll('table tr');
+    for (const row of allRows) {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 3) continue;
+      const label = cells[0].textContent.trim().toLowerCase();
+      for (const pn of prayerNames) {
+        if (label.includes(pn)) {
+          athan[pn] = cells[1].textContent.trim();
+          iqama[pn] = cells[2].textContent.trim();
+          break;
+        }
+      }
+    }
+  }
+
+  // Extract sunrise from the page (span with title="Sunrise")
+  const sunriseSpan = doc.querySelector('span[title="Sunrise"]');
+  let sunrise = null;
+  if (sunriseSpan) {
+    const text = sunriseSpan.textContent.trim();
+    const match = text.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
+    if (match) sunrise = match[1];
+  }
+
+  if (!athan.fajr || !athan.dhuhr || !athan.asr || !athan.maghrib || !athan.isha) {
+    return null;
+  }
+
+  return { athan, iqama, sunrise };
+}
+
+async function fetchPrayerTimesFromWeb() {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  // Don't re-fetch if we already have today's data
+  if (cachedPrayerData && lastFetchDate === todayStr) return cachedPrayerData;
+
+  const targetUrl = 'https://arrahman.azurewebsites.net/';
+  let html = null;
+
+  // Helper: fetch with timeout (AbortSignal.timeout not available everywhere)
+  async function fetchWithTimeout(url, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (e) {
+      clearTimeout(timer);
+      throw e;
+    }
+  }
+
+  // Use allorigins.win JSON wrapper to bypass CORS (returns {contents: "..."})
+  try {
+    console.log("Fetching prayer times via allorigins proxy...");
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+    const res = await fetchWithTimeout(proxyUrl, 30000);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.contents && data.contents.includes('Fajr') && data.contents.includes('Isha')) {
+        html = data.contents;
+        console.log("allorigins proxy succeeded");
+      }
+    }
+  } catch (e) {
+    console.warn("allorigins proxy failed:", e.message);
+  }
+
+  if (!html) {
+    console.error("Could not fetch prayer times from any source");
+    // Try localStorage fallback
+    const saved = localStorage.getItem('prayerTimesCache');
+    if (saved) {
+      const data = JSON.parse(saved);
+      cachedPrayerData = data.prayerData;
+      cachedSunrise = data.sunrise;
+      lastFetchDate = cachedPrayerData.date;
+      console.log("Using cached prayer times from localStorage");
+      return cachedPrayerData;
+    }
+    return null;
+  }
+
+  const parsed = parsePrayerTimesHTML(html);
+  if (!parsed) {
+    console.error("Failed to parse prayer times from HTML");
+    return null;
+  }
+
+  cachedPrayerData = { athan: parsed.athan, iqama: parsed.iqama, date: todayStr };
+  if (parsed.sunrise) cachedSunrise = parsed.sunrise;
+  lastFetchDate = todayStr;
+
+  // Save to localStorage for offline fallback
+  localStorage.setItem('prayerTimesCache', JSON.stringify({
+    prayerData: cachedPrayerData,
+    sunrise: cachedSunrise
+  }));
+
+  console.log("Prayer times loaded:", cachedPrayerData, "Sunrise:", cachedSunrise);
+  return cachedPrayerData;
+}
 
     function parseTime(dateStr, timeStr) {
       const [time, modifier] = timeStr.split(" ");
@@ -404,21 +242,17 @@ const iqama_2 = {
     }
 
     function getTodayPrayerTimes() {
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      const raw = prayerTimes.find(p => p.date === todayStr);
-      const day = now.getDate();
-      const iqama = day <= 15 ? iqama_1 : iqama_2;
-      if (!raw) return null;
+      if (!cachedPrayerData) return null;
+      const data = cachedPrayerData;
       return {
-        date: raw.date,
-        fajr: raw.fajr,
-        sunrise: raw.sunrise,
-        dhuhr: raw.dhuhr,
-        asr: raw.asr,
-        maghrib: raw.maghrib,
-        isha: raw.isha,
-        iqama
+        date: data.date,
+        fajr: data.athan.fajr,
+        sunrise: cachedSunrise || "6:00 AM",
+        dhuhr: data.athan.dhuhr,
+        asr: data.athan.asr,
+        maghrib: data.athan.maghrib,
+        isha: data.athan.isha,
+        iqama: data.iqama
       };
     }
 
@@ -467,25 +301,21 @@ const iqama_2 = {
     }
   }
 
-  // After Isha — set next to tomorrow's Fajr
+  // After Isha — set next to tomorrow's Fajr (use today's fajr as estimate)
   const isha = schedule[schedule.length - 1];
   if (now >= isha.time) {
     const tomorrow = new Date(prayers.date);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split("T")[0];
-    const tomorrowPrayer = prayerTimes.find(p => p.date === tomorrowStr);
-    const tomorrowDay = tomorrow.getDate();
-    const iqama = tomorrowDay <= 15 ? iqama_1 :iqama_2;
+    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
 
-    if (tomorrowPrayer) {
-      const fajrTime = parseTime(tomorrowPrayer.date, tomorrowPrayer.fajr);
-      return {
-        current: isha,
-        next: { name: "Fajr", time: fajrTime, iqama: iqama.fajr },
-        schedule,
-        timeLeft: Math.floor((fajrTime - now) / 1000)
-      };
-    }
+    // Use today's fajr time as estimate for tomorrow
+    const fajrTime = parseTime(tomorrowStr, prayers.fajr);
+    return {
+      current: isha,
+      next: { name: "Fajr", time: fajrTime, iqama: prayers.iqama.fajr },
+      schedule,
+      timeLeft: Math.floor((fajrTime - now) / 1000)
+    };
   }
 
   // Before Fajr
@@ -671,29 +501,34 @@ const iqama_2 = {
 
 
 
-    setInterval(update, 1000);
-    update();
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetchTemperature(latitude, longitude);
-          fetchLocationName(latitude, longitude);
-          setInterval(() => fetchTemperature(latitude, longitude), 10 * 60 * 1000);
-        },
-        (error) => {
-          console.warn("Geolocation failed, using default location.", error);
-          fetchTemperature(40.7128, -74.0060);
-          fetchLocationName(40.7128, -74.0060);
-          setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000);
-        }
-      );
-    } else {
-      console.warn("Geolocation not supported, using default location.");
-      fetchTemperature(40.7128, -74.0060);
-      fetchLocationName(40.7128, -74.0060);
-      setInterval(() => fetchTemperature(40.7128, -74.0060), 10 * 60 * 1000);
+    // Initialize: fetch prayer times, then start the clock
+    async function init() {
+      await fetchPrayerTimesFromWeb();
+      update();
+      setInterval(update, 1000);
+      // Re-fetch prayer times every 30 minutes (handles day change)
+      setInterval(fetchPrayerTimesFromWeb, 30 * 60 * 1000);
+
+      function setupLocation(lat, lon) {
+        fetchTemperature(lat, lon);
+        fetchLocationName(lat, lon);
+        setInterval(() => fetchTemperature(lat, lon), 10 * 60 * 1000);
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => setupLocation(position.coords.latitude, position.coords.longitude),
+          (error) => {
+            console.warn("Geolocation failed, using default location.", error);
+            setupLocation(40.7128, -74.0060);
+          }
+        );
+      } else {
+        console.warn("Geolocation not supported, using default location.");
+        setupLocation(40.7128, -74.0060);
+      }
     }
+    init();
 
 
   </script>
