@@ -106,45 +106,44 @@ function parsePrayerTimesHTML(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Extract prayer times from table rows with data-prayer attribute
   const prayerNames = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
   const athan = {};
   const iqama = {};
 
-  const rows = doc.querySelectorAll('tr[data-prayer]');
-  for (const row of rows) {
-    const cells = row.querySelectorAll('td');
-    if (cells.length < 3) continue;
-    const name = (row.getAttribute('data-prayer') || cells[0].textContent.trim()).toLowerCase();
+  // New layout: columns per prayer with data-prayer on th/td elements
+  // Header row has <th data-prayer="Fajr">, body rows have <td data-prayer="Fajr">
+  const bodyRows = doc.querySelectorAll('table.prayer-times-table tbody tr');
+  if (bodyRows.length >= 2) {
+    const athanRow = bodyRows[0]; // first row is Athan
+    const iqamaRow = bodyRows[1]; // second row is Iqama
     for (const pn of prayerNames) {
-      if (name.includes(pn)) {
-        athan[pn] = cells[1].textContent.trim();
-        iqama[pn] = cells[2].textContent.trim();
-        break;
-      }
+      const athanCell = athanRow.querySelector(`td[data-prayer="${pn.charAt(0).toUpperCase() + pn.slice(1)}"]`);
+      const iqamaCell = iqamaRow.querySelector(`td[data-prayer="${pn.charAt(0).toUpperCase() + pn.slice(1)}"]`);
+      if (athanCell) athan[pn] = athanCell.textContent.trim();
+      if (iqamaCell) iqama[pn] = iqamaCell.textContent.trim();
     }
   }
 
-  // Fallback: try all table rows if data-prayer not found
+  // Fallback: try matching any td with data-prayer in all rows
   if (!athan.fajr) {
-    const allRows = doc.querySelectorAll('table tr');
+    const allRows = doc.querySelectorAll('table tbody tr');
     for (const row of allRows) {
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 3) continue;
-      const label = cells[0].textContent.trim().toLowerCase();
+      const label = row.querySelector('td:first-child');
+      if (!label) continue;
+      const labelText = label.textContent.trim().toLowerCase();
       for (const pn of prayerNames) {
-        if (label.includes(pn)) {
-          athan[pn] = cells[1].textContent.trim();
-          iqama[pn] = cells[2].textContent.trim();
-          break;
+        const cell = row.querySelector(`td[data-prayer="${pn.charAt(0).toUpperCase() + pn.slice(1)}"]`);
+        if (cell) {
+          if (labelText.includes('athan')) athan[pn] = cell.textContent.trim();
+          else if (labelText.includes('iqama')) iqama[pn] = cell.textContent.trim();
         }
       }
     }
   }
 
-  // Extract sunrise from the page (span with title="Sunrise")
-  const sunriseSpan = doc.querySelector('span[title="Sunrise"]');
+  // Extract sunrise from span with title="Sunrise" or class="sun-time"
   let sunrise = null;
+  const sunriseSpan = doc.querySelector('span[title="Sunrise"]');
   if (sunriseSpan) {
     const text = sunriseSpan.textContent.trim();
     const match = text.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
@@ -153,6 +152,11 @@ function parsePrayerTimesHTML(html) {
 
   if (!athan.fajr || !athan.dhuhr || !athan.asr || !athan.maghrib || !athan.isha) {
     return null;
+  }
+
+  // Fix known data issues: Fajr iqama should always be AM
+  if (iqama.fajr) {
+    iqama.fajr = iqama.fajr.replace(/PM$/i, 'AM');
   }
 
   return { athan, iqama, sunrise };
