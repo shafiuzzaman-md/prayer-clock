@@ -130,15 +130,16 @@
     .iqama-pill:empty { display: none; }
 
     .countdown {
-      font-size: clamp(2.6rem, 9vw, 9rem);
+      font-size: clamp(2rem, 6vw, 6rem);
       font-weight: 800;
       color: var(--countdown);
-      margin: 0 0 clamp(16px, 1.8vw, 32px);
+      margin: 0;
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.015em;
       line-height: 1;
       transition: color 0.4s ease;
     }
+    .countdown:empty { display: none; }
     .countdown.iqama { color: var(--countdown-iqama); }
     .countdown.sunrise { color: var(--countdown-sunrise); }
 
@@ -235,9 +236,9 @@
       <div class="headline">
         <div class="label" id="cardLabel">Now</div>
         <div class="prayer-name" id="currentPrayer">Loading…</div>
+        <div class="countdown" id="timeLeft"></div>
         <div class="iqama-pill" id="iqama"></div>
       </div>
-      <div class="countdown" id="timeLeft"></div>
       <div class="next" id="nextPrayerTime"></div>
       <div class="sun-times" id="sunTimes"></div>
     </main>
