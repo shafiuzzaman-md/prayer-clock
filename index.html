@@ -411,77 +411,47 @@ async function fetchPrayerTimesFromWeb() {
     }
 
     function getCurrentPrayer(prayers, now) {
+  const fajrTime    = parseTime(prayers.date, prayers.fajr);
+  const sunriseTime = parseTime(prayers.date, prayers.sunrise);
+  const dhuhrTime   = parseTime(prayers.date, prayers.dhuhr);
+  const asrTime     = parseTime(prayers.date, prayers.asr);
+  const maghribTime = parseTime(prayers.date, prayers.maghrib);
+  const ishaTime    = parseTime(prayers.date, prayers.isha);
+
+  // Tomorrow's Fajr (today's Fajr time used as estimate). Build via date parts to
+  // avoid `new Date("YYYY-MM-DD")` parsing as UTC.
+  const [py, pm, pd] = prayers.date.split('-').map(Number);
+  const tomorrow = new Date(py, pm - 1, pd + 1);
+  const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+  const fajrNextDay = parseTime(tomorrowStr, prayers.fajr);
+
+  // Window-end times (when each prayer's valid time runs out)
+  const sunriseEnd  = new Date(sunriseTime.getTime() + 20 * 60 * 1000);     // sunrise display window
+  const asrEnd      = new Date(maghribTime.getTime() - 20 * 60 * 1000);     // Asr ends 20m before sunset
+  const ishaEnd     = new Date(maghribTime.getTime() + (fajrNextDay - maghribTime) / 3); // first third of the night
+
   const schedule = [
-    { name: "Fajr", time: parseTime(prayers.date, prayers.fajr), iqama: prayers.iqama.fajr },
-    { name: "Sunrise", time: parseTime(prayers.date, prayers.sunrise), iqama: "N/A" },
-    { name: "Dhuhr", time: parseTime(prayers.date, prayers.dhuhr), iqama: prayers.iqama.dhuhr },
-    { name: "Asr", time: parseTime(prayers.date, prayers.asr), iqama: prayers.iqama.asr },
-    { name: "Maghrib",  time: parseTime(prayers.date, prayers.maghrib), iqama: (prayers.iqama.maghrib === "At Sunset") ? prayers.maghrib : prayers.iqama.maghrib },
-    { name: "Isha", time: parseTime(prayers.date, prayers.isha), iqama: prayers.iqama.isha }
+    { name: "Fajr",    time: fajrTime,    end: sunriseTime, iqama: prayers.iqama.fajr },
+    { name: "Sunrise", time: sunriseTime, end: sunriseEnd,  iqama: "N/A" },
+    { name: "Dhuhr",   time: dhuhrTime,   end: asrTime,     iqama: prayers.iqama.dhuhr },
+    { name: "Asr",     time: asrTime,     end: asrEnd,      iqama: prayers.iqama.asr },
+    { name: "Maghrib", time: maghribTime, end: ishaTime,    iqama: (prayers.iqama.maghrib === "At Sunset") ? prayers.maghrib : prayers.iqama.maghrib },
+    { name: "Isha",    time: ishaTime,    end: ishaEnd,     iqama: prayers.iqama.isha }
   ];
 
-  for (let i = 0; i < schedule.length - 1; i++) {
-    const curr = schedule[i];
-    const next = schedule[i + 1];
-    if (now >= curr.time && now < next.time) {
-
-      // Special logic to show Sunrise only for 20 minutes
-      if (curr.name === "Sunrise") {
-        const sunriseEnd = new Date(curr.time.getTime() + 20 * 60 * 1000);
-        if (now <= sunriseEnd) {
-          return {
-            current: curr,
-            next,
-            schedule,
-            timeLeft: Math.floor((sunriseEnd - now) / 1000)
-          };
-        } else {
-          // After 20 minutes of sunrise, skip to next
-          return {
-            current: null,
-            next,
-            schedule,
-            timeLeft: Math.floor((next.time - now) / 1000)
-          };
-        }
-      }
-
-      return {
-        current: curr,
-        next,
-        schedule,
-        timeLeft: Math.floor((next.time - now) / 1000)
-      };
-    }
+  // Active prayer = the one whose [time, end) window contains `now`.
+  let current = null;
+  for (const entry of schedule) {
+    if (now >= entry.time && now < entry.end) { current = entry; break; }
   }
 
-  // After Isha — set next to tomorrow's Fajr (use today's fajr as estimate)
-  const isha = schedule[schedule.length - 1];
-  if (now >= isha.time) {
-    // Build tomorrow from date parts to avoid `new Date("YYYY-MM-DD")` being parsed as UTC,
-    // which can roll back to today in negative-UTC timezones.
-    const [py, pm, pd] = prayers.date.split('-').map(Number);
-    const tomorrow = new Date(py, pm - 1, pd + 1);
-    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
-
-    // Use today's fajr time as estimate for tomorrow
-    const fajrTime = parseTime(tomorrowStr, prayers.fajr);
-    return {
-      current: isha,
-      next: { name: "Fajr", time: fajrTime, iqama: prayers.iqama.fajr },
-      schedule,
-      timeLeft: Math.floor((fajrTime - now) / 1000)
-    };
+  // Next upcoming prayer (today's schedule, else tomorrow's Fajr).
+  let next = schedule.find(e => e.time > now);
+  if (!next) {
+    next = { name: "Fajr", time: fajrNextDay, end: null, iqama: prayers.iqama.fajr };
   }
 
-  // Before Fajr
-  const fajr = schedule[0];
-  return {
-    current: null,
-    next: fajr,
-    schedule,
-    timeLeft: Math.floor((fajr.time - now) / 1000)
-  };
+  return { current, next, schedule };
 }
 
     function formatTimeLeft(seconds) {
@@ -614,48 +584,25 @@ async function fetchPrayerTimesFromWeb() {
       currentPrayerEl.innerText = "—";
     }
 
-    // Countdown — preserves existing iqama / sunrise / generic-next semantics.
+    // Countdown
     let message = "";
     timeLeftEl.classList.remove("iqama", "sunrise");
 
-    if (current && current.name === "Fajr") {
-      const iqamaTime = parseTime(todayPrayers.date, current.iqama);
-      const secsToIqama = Math.floor((iqamaTime - now) / 1000);
-      if (secsToIqama > 0) {
-        message = `Iqama in ${formatMinutes(secsToIqama)}`;
-        timeLeftEl.classList.add("iqama");
-      } else {
-        const sunriseTime = parseTime(todayPrayers.date, todayPrayers.sunrise);
-        const secsToSunrise = Math.floor((sunriseTime - now) / 1000);
-        if (secsToSunrise > 0) {
-          message = `${formatMinutes(secsToSunrise)} left`;
-        } else if (secsToSunrise > -1200) {
-          message = `Sunrise`;
-          timeLeftEl.classList.add("sunrise");
-        }
-      }
-    } else if (current && current.name === "Sunrise") {
-      const sunriseEnd = new Date(parseTime(todayPrayers.date, todayPrayers.sunrise).getTime() + 20 * 60 * 1000);
-      const secsLeft = Math.floor((sunriseEnd - now) / 1000);
-      if (secsLeft > 0) {
-        message = `Sunrise`;
-        timeLeftEl.classList.add("sunrise");
-      } else if (next) {
-        const secsToNext = Math.floor((next.time - now) / 1000);
-        message = `in ${formatMinutes(secsToNext)}`;
-      }
+    if (current && current.name === "Sunrise") {
+      message = `Sunrise`;
+      timeLeftEl.classList.add("sunrise");
     } else if (current && hasIqama(current)) {
       const iqamaTime = parseTime(todayPrayers.date, current.iqama);
       const secsToIqama = Math.floor((iqamaTime - now) / 1000);
       if (secsToIqama > 0) {
         message = `Iqama in ${formatMinutes(secsToIqama)}`;
         timeLeftEl.classList.add("iqama");
-      } else if (next) {
-        const secsLeft = Math.floor((next.time - now) / 1000);
+      } else if (current.end) {
+        const secsLeft = Math.floor((current.end - now) / 1000);
         message = `${formatMinutes(secsLeft)} left`;
       }
-    } else if (current && next) {
-      const secsLeft = Math.floor((next.time - now) / 1000);
+    } else if (current && current.end) {
+      const secsLeft = Math.floor((current.end - now) / 1000);
       message = `${formatMinutes(secsLeft)} left`;
     } else if (next) {
       const secsToNext = Math.floor((next.time - now) / 1000);
