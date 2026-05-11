@@ -336,33 +336,42 @@ async function fetchPrayerTimesFromWeb() {
     }
   }
 
-  // Use allorigins.win JSON wrapper to bypass CORS (returns {contents: "..."})
-  try {
-    console.log("Fetching prayer times via allorigins proxy...");
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-    const res = await fetchWithTimeout(proxyUrl, 30000);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.contents && data.contents.includes('Fajr') && data.contents.includes('Isha')) {
-        html = data.contents;
-        console.log("allorigins proxy succeeded");
+  // CORS proxies — codetabs returns the raw page, allorigins wraps in {contents}.
+  const proxies = [
+    { name: "codetabs", url: `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(targetUrl)}`, extract: async (res) => res.text() },
+    { name: "allorigins", url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, extract: async (res) => (await res.json()).contents }
+  ];
+
+  for (const proxy of proxies) {
+    try {
+      console.log(`Fetching prayer times via ${proxy.name} proxy...`);
+      const res = await fetchWithTimeout(proxy.url, 30000);
+      if (!res.ok) continue;
+      const body = await proxy.extract(res);
+      if (body && body.includes('Fajr') && body.includes('Isha')) {
+        html = body;
+        console.log(`${proxy.name} proxy succeeded`);
+        break;
       }
+    } catch (e) {
+      console.warn(`${proxy.name} proxy failed:`, e.message);
     }
-  } catch (e) {
-    console.warn("allorigins proxy failed:", e.message);
   }
 
   if (!html) {
     console.error("Could not fetch prayer times from any source");
-    // Try localStorage fallback
+    // Try localStorage fallback — only if it's from today.
     const saved = localStorage.getItem('prayerTimesCache');
     if (saved) {
       const data = JSON.parse(saved);
-      cachedPrayerData = data.prayerData;
-      cachedSunrise = data.sunrise;
-      lastFetchDate = cachedPrayerData.date;
-      console.log("Using cached prayer times from localStorage");
-      return cachedPrayerData;
+      if (data.prayerData && data.prayerData.date === todayStr) {
+        cachedPrayerData = data.prayerData;
+        cachedSunrise = data.sunrise;
+        lastFetchDate = cachedPrayerData.date;
+        console.log("Using cached prayer times from localStorage");
+        return cachedPrayerData;
+      }
+      console.warn(`Discarding stale localStorage cache from ${data.prayerData && data.prayerData.date}`);
     }
     return null;
   }
@@ -462,6 +471,7 @@ async function fetchPrayerTimesFromWeb() {
     }
 
     function formatMinutes(seconds) {
+      if (seconds <= 0) return "now";
       if (seconds < 60) return "1 min";
 
       const mins = Math.ceil(seconds / 60);
