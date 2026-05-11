@@ -437,7 +437,7 @@ async function fetchPrayerTimesFromWeb() {
   // Window-end times (when each prayer's valid time runs out)
   const sunriseEnd  = new Date(sunriseTime.getTime() + 20 * 60 * 1000);     // sunrise display window
   const asrEnd      = new Date(maghribTime.getTime() - 20 * 60 * 1000);     // Asr ends 20m before sunset
-  const ishaEnd     = new Date(maghribTime.getTime() + (fajrNextDay - maghribTime) / 3); // first third of the night
+  const ishaEnd     = new Date(maghribTime.getTime() + (fajrNextDay - maghribTime) / 2); // midpoint of the night
 
   const schedule = [
     { name: "Fajr",    time: fajrTime,    end: sunriseTime, iqama: prayers.iqama.fajr },
