@@ -251,6 +251,8 @@
 let cachedPrayerData = null;
 let cachedSunrise = null;
 let lastFetchDate = null;
+let lastRenderKey = null;
+let wakeLock = null;
 
 function parsePrayerTimesHTML(html) {
   const parser = new DOMParser();
@@ -406,6 +408,10 @@ async function fetchPrayerTimesFromWeb() {
 
     function getTodayPrayerTimes() {
       if (!cachedPrayerData) return null;
+      // Guard against the date rolling over before we've refreshed the cache.
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (cachedPrayerData.date !== todayStr) return null;
       const data = cachedPrayerData;
       return {
         date: data.date,
@@ -576,7 +582,12 @@ async function fetchPrayerTimesFromWeb() {
     const current = result.current;
     const next = result.next;
 
-    renderSchedule(result.schedule, current);
+    // Only rebuild the schedule strip when the active prayer or day changes.
+    const renderKey = `${todayPrayers.date}|${current ? current.name : ''}`;
+    if (renderKey !== lastRenderKey) {
+      renderSchedule(result.schedule, current);
+      lastRenderKey = renderKey;
+    }
 
     // Headline prayer: current if active, otherwise the upcoming one.
     const headline = current || next;
@@ -634,6 +645,28 @@ async function fetchPrayerTimesFromWeb() {
     }
   }
 
+  // ---- Keep-awake + lifecycle -----------------------------------------
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      if (wakeLock) await wakeLock.release().catch(() => {});
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (e) {
+      console.warn("WakeLock request failed:", e.message);
+    }
+  }
+
+  function scheduleMidnightRefresh() {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 30);
+    setTimeout(async () => {
+      await fetchPrayerTimesFromWeb();
+      update();
+      scheduleMidnightRefresh();
+    }, next - now);
+  }
+
   // ---- Init ------------------------------------------------------------
   async function init() {
     applyMode(null, new Date()); // set toggle label before data arrives
@@ -641,6 +674,14 @@ async function fetchPrayerTimesFromWeb() {
     update();
     setInterval(update, 1000);
     setInterval(fetchPrayerTimesFromWeb, 30 * 60 * 1000);
+    requestWakeLock();
+    scheduleMidnightRefresh();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+        fetchPrayerTimesFromWeb().then(() => update());
+      }
+    });
   }
   init();
 
