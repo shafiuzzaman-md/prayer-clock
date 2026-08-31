@@ -325,17 +325,40 @@ async function fetchPrayerTimesFromWeb() {
   let html = null;
 
   // Helper: fetch with timeout (AbortSignal.timeout not available everywhere)
-  async function fetchWithTimeout(url, timeoutMs) {
+  async function fetchWithTimeout(url, timeoutMs, options) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const res = await fetch(url, { signal: controller.signal });
+      const res = await fetch(url, Object.assign({ signal: controller.signal }, options || {}));
       clearTimeout(timer);
       return res;
     } catch (e) {
       clearTimeout(timer);
       throw e;
     }
+  }
+
+  // First choice: same-origin prayer-times.json, published daily to this repo
+  // by the fetch-prayer-times GitHub Action. No third-party proxy involved.
+  try {
+    const res = await fetchWithTimeout('prayer-times.json', 10000, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.date === todayStr && data.athan && data.athan.fajr) {
+        cachedPrayerData = { athan: data.athan, iqama: data.iqama || {}, date: data.date };
+        if (data.sunrise) cachedSunrise = data.sunrise;
+        lastFetchDate = todayStr;
+        localStorage.setItem('prayerTimesCache', JSON.stringify({
+          prayerData: cachedPrayerData,
+          sunrise: cachedSunrise
+        }));
+        console.log("Prayer times loaded from prayer-times.json:", cachedPrayerData);
+        return cachedPrayerData;
+      }
+      console.warn(`prayer-times.json is for ${data && data.date}, not ${todayStr}; falling back to proxies`);
+    }
+  } catch (e) {
+    console.warn("prayer-times.json fetch failed:", e.message);
   }
 
   // CORS proxies — codetabs returns the raw page, allorigins wraps in {contents}.
