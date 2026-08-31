@@ -1,0 +1,44 @@
+name: Fetch prayer times
+
+on:
+  schedule:
+    # 07:10/08:10 UTC = just after midnight in LA (PDT/PST), plus two
+    # daytime refreshes in case the mosque updates iqama times mid-day.
+    - cron: "10 7,8,16,20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-prayer-times
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (scraper)
+        uses: actions/checkout@v4
+
+      - name: Checkout gh-pages (site)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Fetch and parse prayer times
+        run: python3 scripts/fetch_prayer_times.py site/prayer-times.json
+
+      - name: Commit to gh-pages
+        working-directory: site
+        run: |
+          git add prayer-times.json
+          if git diff --cached --quiet; then
+            echo "prayer-times.json unchanged, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update prayer times for $(python3 -c 'import json; print(json.load(open("prayer-times.json"))["date"])')"
+          git push origin gh-pages
