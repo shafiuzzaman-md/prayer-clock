@@ -5,7 +5,7 @@
     "dhuhr": "01:07 PM",
     "asr": "04:50 PM",
     "maghrib": "07:19 PM",
-    "isha": "09:11 PM"
+    "isha": "08:24 PM"
   },
   "iqama": {
     "fajr": "05:30 AM",
@@ -16,5 +16,5 @@
   },
   "sunrise": "06:37 AM",
   "sunset": "07:13 PM",
-  "fetchedAt": "2026-09-10T12:12:24+00:00"
+  "fetchedAt": "2026-09-10T19:06:22+00:00"
 }
