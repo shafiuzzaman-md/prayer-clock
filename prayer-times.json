@@ -1,20 +1,20 @@
 {
-  "date": "2026-09-22",
+  "date": "2026-09-23",
   "athan": {
-    "fajr": "04:57 AM",
+    "fajr": "04:58 AM",
     "dhuhr": "01:04 PM",
-    "asr": "04:45 PM",
-    "maghrib": "07:02 PM",
-    "isha": "08:06 PM"
+    "asr": "04:44 PM",
+    "maghrib": "07:01 PM",
+    "isha": "08:05 PM"
   },
   "iqama": {
     "fajr": "05:45 AM",
     "dhuhr": "01:15 PM",
     "asr": "05:15 PM",
-    "maghrib": "07:07 PM",
+    "maghrib": "07:06 PM",
     "isha": "08:45 PM"
   },
-  "sunrise": "06:45 AM",
-  "sunset": "06:56 PM",
-  "fetchedAt": "2026-09-22T22:54:44+00:00"
+  "sunrise": "06:46 AM",
+  "sunset": "06:55 PM",
+  "fetchedAt": "2026-09-23T12:43:36+00:00"
 }
