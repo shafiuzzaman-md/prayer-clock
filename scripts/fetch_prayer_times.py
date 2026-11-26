@@ -41,8 +41,8 @@ class PrayerPageParser(HTMLParser):
         attrs = dict(attrs)
         if tag == "tr":
             self._row_label = None
-        elif tag == "td":
-            if attrs.get("data-prayer") in PRAYERS:
+        elif tag in ("td", "th"):
+            if tag == "td" and attrs.get("data-prayer") in PRAYERS:
                 self._cell_prayer = attrs["data-prayer"]
                 self._cell_text = []
             else:
@@ -57,7 +57,7 @@ class PrayerPageParser(HTMLParser):
                 self._sun_depth = 1
 
     def handle_endtag(self, tag):
-        if tag == "td":
+        if tag in ("td", "th"):
             if self._cell_prayer:
                 text = "".join(self._cell_text).strip()
                 if self._row_label == "athan":
